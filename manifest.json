@@ -1,0 +1,10 @@
+{
+  "id": "claude-desktop-mirror",
+  "name": "Claude Desktop Mirror",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Full Claude Desktop experience inside Obsidian — chat, co-work, code, and vault tools",
+  "author": "perspective0labs",
+  "authorUrl": "",
+  "isDesktopOnly": true
+}
