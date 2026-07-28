@@ -1,6 +1,6 @@
 {
   "name": "claude-desktop-mirror",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Claude Desktop Mirror for Obsidian",
   "main": "main.js",
   "scripts": {
@@ -11,8 +11,8 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "builtin-modules": "^3.3.0",
-    "esbuild": "^0.19.0",
-    "obsidian": "^1.4.0",
-    "typescript": "^5.0.0"
+    "esbuild": "^0.25.0",
+    "obsidian": "latest",
+    "typescript": "^5.8.0"
   }
 }

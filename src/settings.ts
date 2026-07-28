@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS: ClaudeSettings = {
   defaultModel: 'claude-sonnet-4-6' as ModelId,
   conversationsFolder: 'Claude Conversations',
   systemPrompt: '',
-  enableVaultTools: true,
+  enableVaultTools: false,
   enableCodeMode: false,
   enableCowork: true,
   maxTokens: 8096,
@@ -31,8 +31,6 @@ export class ClaudeSettingsTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl('h2', { text: 'Claude Desktop Mirror' });
-
     // ── API & Model ──────────────────────────────────────────────────────────
 
     new Setting(containerEl)
@@ -104,13 +102,12 @@ export class ClaudeSettingsTab extends PluginSettingTab {
 
     containerEl.createEl('h3', { text: 'System Prompt Sync' });
 
-    const syncDesc = containerEl.createEl('p', { cls: 'setting-item-description' });
-    syncDesc.innerHTML =
-      'Sync your system prompt with a shared file at <code>' +
-      this.plugin.settings.syncFilePath +
-      '</code>. ' +
-      'This file is read by Claude Code and can be updated from Claude Desktop\'s custom instructions manually. ' +
-      'Use the buttons below to push/pull between Obsidian and the file.';
+    containerEl.createEl('p', {
+      cls: 'setting-item-description',
+      text:
+        `Sync your system prompt with a shared file at ${this.plugin.settings.syncFilePath}. ` +
+        'This file can be shared with other Claude tools. Use the buttons below to push or pull between Obsidian and the file.',
+    });
 
     new Setting(containerEl)
       .setName('Sync File Path')

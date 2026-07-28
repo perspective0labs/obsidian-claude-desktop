@@ -49,10 +49,8 @@ var AnthropicClient = class {
       max_tokens: maxTokens,
       stream: true
     };
-    if (system)
-      body.system = system;
-    if (tools && tools.length > 0)
-      body.tools = tools;
+    if (system) body.system = system;
+    if (tools && tools.length > 0) body.tools = tools;
     let response;
     try {
       response = await fetch(`${this.baseUrl}/messages`, {
@@ -88,17 +86,14 @@ var AnthropicClient = class {
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done)
-          break;
+        if (done) break;
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
         for (const line of lines) {
-          if (!line.startsWith("data: "))
-            continue;
+          if (!line.startsWith("data: ")) continue;
           const data = line.slice(6).trim();
-          if (data === "[DONE]" || !data)
-            continue;
+          if (data === "[DONE]" || !data) continue;
           let event;
           try {
             event = JSON.parse(data);
@@ -156,10 +151,8 @@ var AnthropicClient = class {
     var _a;
     const { model, messages, system, tools, maxTokens } = params;
     const body = { model, messages, max_tokens: maxTokens };
-    if (system)
-      body.system = system;
-    if (tools && tools.length > 0)
-      body.tools = tools;
+    if (system) body.system = system;
+    if (tools && tools.length > 0) body.tools = tools;
     const response = await fetch(`${this.baseUrl}/messages`, {
       method: "POST",
       headers: {
@@ -281,8 +274,7 @@ async function executeVaultTool(app, name, input) {
     case "read_note": {
       const path = input.path;
       const file = findFile(vault, path);
-      if (!file)
-        return `Error: Note not found \u2014 tried "${path}" and "${path}.md"`;
+      if (!file) return `Error: Note not found \u2014 tried "${path}" and "${path}.md"`;
       return await vault.read(file);
     }
     case "search_vault": {
@@ -291,8 +283,7 @@ async function executeVaultTool(app, name, input) {
       const files = vault.getMarkdownFiles();
       const results = [];
       for (const file of files) {
-        if (results.length >= limit)
-          break;
+        if (results.length >= limit) break;
         const nameMatch = file.name.toLowerCase().includes(query);
         const content = await vault.read(file);
         const contentLower = content.toLowerCase();
@@ -309,8 +300,7 @@ async function executeVaultTool(app, name, input) {
           results.push({ path: file.path, excerpt: excerpt.replace(/\n+/g, " ") });
         }
       }
-      if (results.length === 0)
-        return `No notes found matching "${input.query}".`;
+      if (results.length === 0) return `No notes found matching "${input.query}".`;
       return results.map((r) => `### ${r.path}
 ${r.excerpt}`).join("\n\n---\n\n");
     }
@@ -340,21 +330,17 @@ ${r.excerpt}`).join("\n\n---\n\n");
       const files = vault.getMarkdownFiles();
       const filtered = files.filter((f) => {
         var _a, _b;
-        if (!folder)
-          return true;
+        if (!folder) return true;
         const normalizedFolder = folder.endsWith("/") ? folder : folder + "/";
-        if (recursive)
-          return f.path.startsWith(normalizedFolder) || ((_a = f.parent) == null ? void 0 : _a.path) === folder;
+        if (recursive) return f.path.startsWith(normalizedFolder) || ((_a = f.parent) == null ? void 0 : _a.path) === folder;
         return ((_b = f.parent) == null ? void 0 : _b.path) === folder;
       });
-      if (filtered.length === 0)
-        return "No notes found in that folder.";
+      if (filtered.length === 0) return "No notes found in that folder.";
       return filtered.map((f) => f.path).sort().join("\n");
     }
     case "get_active_note": {
       const activeFile = app.workspace.getActiveFile();
-      if (!activeFile)
-        return "No note is currently open.";
+      if (!activeFile) return "No note is currently open.";
       const content = await vault.read(activeFile);
       return `**Active note:** ${activeFile.path}
 
@@ -368,8 +354,7 @@ ${content}`;
     case "delete_note": {
       const path = input.path;
       const file = findFile(vault, path);
-      if (!file)
-        return `Error: Note not found \u2014 "${path}"`;
+      if (!file) return `Error: Note not found \u2014 "${path}"`;
       await vault.trash(file, true);
       return `Moved to trash: ${file.path}`;
     }
@@ -377,8 +362,7 @@ ${content}`;
       const from = input.from;
       const to = normPath(input.to);
       const file = findFile(vault, from);
-      if (!file)
-        return `Error: Source note not found \u2014 "${from}"`;
+      if (!file) return `Error: Source note not found \u2014 "${from}"`;
       await ensureFolders(vault, to);
       await app.fileManager.renameFile(file, to);
       return `Moved: ${file.path} \u2192 ${to}`;
@@ -389,11 +373,9 @@ ${content}`;
 }
 function findFile(vault, path) {
   let f = vault.getAbstractFileByPath(path);
-  if (f instanceof import_obsidian.TFile)
-    return f;
+  if (f instanceof import_obsidian.TFile) return f;
   f = vault.getAbstractFileByPath(path + ".md");
-  if (f instanceof import_obsidian.TFile)
-    return f;
+  if (f instanceof import_obsidian.TFile) return f;
   return null;
 }
 function normPath(path) {
@@ -401,8 +383,7 @@ function normPath(path) {
 }
 async function ensureFolders(vault, filePath) {
   const parts = filePath.split("/");
-  if (parts.length <= 1)
-    return;
+  if (parts.length <= 1) return;
   const folders = parts.slice(0, -1);
   let current = "";
   for (const part of folders) {
@@ -413,8 +394,7 @@ async function ensureFolders(vault, filePath) {
   }
 }
 function buildTree(folder, maxDepth, depth) {
-  if (depth >= maxDepth)
-    return "";
+  if (depth >= maxDepth) return "";
   const indent = "  ".repeat(depth);
   const lines = [];
   const sorted = [...folder.children].sort((a, b) => {
@@ -426,8 +406,7 @@ function buildTree(folder, maxDepth, depth) {
     if (child instanceof import_obsidian.TFolder) {
       lines.push(`${indent}\u{1F4C1} ${child.name}/`);
       const subtree = buildTree(child, maxDepth, depth + 1);
-      if (subtree)
-        lines.push(subtree);
+      if (subtree) lines.push(subtree);
     } else {
       lines.push(`${indent}\u{1F4C4} ${child.name}`);
     }
@@ -504,11 +483,9 @@ async function executeCodeTool(name, input) {
         const out = stdout.trim();
         const err = stderr.trim();
         let result = "";
-        if (out)
-          result += `STDOUT:
+        if (out) result += `STDOUT:
 ${out}`;
-        if (err)
-          result += (result ? "\n\n" : "") + `STDERR:
+        if (err) result += (result ? "\n\n" : "") + `STDERR:
 ${err}`;
         return result || "(no output)";
       } catch (e) {
@@ -519,8 +496,7 @@ ${err.stderr || ""}`.trim();
     }
     case "read_file": {
       const path = input.path;
-      if (!(0, import_fs.existsSync)(path))
-        return `Error: File not found: ${path}`;
+      if (!(0, import_fs.existsSync)(path)) return `Error: File not found: ${path}`;
       try {
         const content = (0, import_fs.readFileSync)(path, input.encoding || "utf8");
         return content;
@@ -540,8 +516,7 @@ ${err.stderr || ""}`.trim();
     }
     case "list_directory": {
       const path = input.path;
-      if (!(0, import_fs.existsSync)(path))
-        return `Error: Directory not found: ${path}`;
+      if (!(0, import_fs.existsSync)(path)) return `Error: Directory not found: ${path}`;
       try {
         const entries = (0, import_fs.readdirSync)(path);
         return entries.map((name2) => {
@@ -685,11 +660,9 @@ ${critic.output || "(none)"}`
         maxTokens: Math.min(this.maxTokens, 8096)
       });
       finalText = result.text;
-      if (result.stopReason !== "tool_use" || result.toolUses.length === 0)
-        break;
+      if (result.stopReason !== "tool_use" || result.toolUses.length === 0) break;
       const assistantContent = [];
-      if (result.text)
-        assistantContent.push({ type: "text", text: result.text });
+      if (result.text) assistantContent.push({ type: "text", text: result.text });
       for (const tu of result.toolUses) {
         assistantContent.push({ type: "tool_use", id: tu.id, name: tu.name, input: tu.input });
       }
@@ -769,18 +742,15 @@ var ClaudeView = class extends import_obsidian2.ItemView {
       ["claude-opus-4-8", "\u25C8 Opus 4.8"]
     ].forEach(([value, label]) => {
       const opt = this.modelSelect.createEl("option", { value, text: label });
-      if (value === this.plugin.settings.defaultModel)
-        opt.selected = true;
+      if (value === this.plugin.settings.defaultModel) opt.selected = true;
     });
     this.modelSelect.addEventListener("change", () => {
-      if (this.currentConv)
-        this.currentConv.model = this.modelSelect.value;
+      if (this.currentConv) this.currentConv.model = this.modelSelect.value;
     });
     this.modeSelect = controls.createEl("select", { cls: "cdm-select" });
     this.updateModeOptions();
     this.modeSelect.addEventListener("change", () => {
-      if (this.currentConv)
-        this.currentConv.mode = this.modeSelect.value;
+      if (this.currentConv) this.currentConv.mode = this.modeSelect.value;
     });
     this.statusEl = topbar.createDiv({ cls: "cdm-status" });
     this.messagesEl = main.createDiv({ cls: "cdm-messages" });
@@ -806,8 +776,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
     });
   }
   updateModeOptions() {
-    if (!this.modeSelect)
-      return;
+    if (!this.modeSelect) return;
     const current = this.modeSelect.value;
     this.modeSelect.empty();
     this.modeSelect.createEl("option", { value: "chat", text: "\u{1F4AC} Chat" });
@@ -815,8 +784,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
       this.modeSelect.createEl("option", { value: "cowork", text: "\u{1F91D} Co-work" });
     if (this.plugin.settings.enableCodeMode)
       this.modeSelect.createEl("option", { value: "code", text: "\u{1F4BB} Code" });
-    if (current)
-      this.modeSelect.value = current;
+    if (current) this.modeSelect.value = current;
   }
   // ─── Conversation List ────────────────────────────────────────────────────────
   renderConvList() {
@@ -837,8 +805,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
         lastGroup = group;
       }
       const item = this.convListEl.createDiv({ cls: "cdm-conv-item" });
-      if (conv.id === ((_a = this.currentConv) == null ? void 0 : _a.id))
-        item.addClass("active");
+      if (conv.id === ((_a = this.currentConv) == null ? void 0 : _a.id)) item.addClass("active");
       const modeEmoji = conv.mode === "cowork" ? "\u{1F91D} " : conv.mode === "code" ? "\u{1F4BB} " : "";
       item.createEl("span", { text: modeEmoji + conv.title, cls: "cdm-conv-title" });
       item.addEventListener("click", () => this.loadConv(conv));
@@ -849,8 +816,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
         e.stopPropagation();
         await this.plugin.store.delete(conv.id);
         this.conversations = this.conversations.filter((c) => c.id !== conv.id);
-        if (((_a2 = this.currentConv) == null ? void 0 : _a2.id) === conv.id)
-          this.startNew();
+        if (((_a2 = this.currentConv) == null ? void 0 : _a2.id) === conv.id) this.startNew();
         this.renderConvList();
       });
     }
@@ -867,12 +833,9 @@ var ClaudeView = class extends import_obsidian2.ItemView {
   }
   loadConv(conv) {
     this.currentConv = conv;
-    if (this.modelSelect)
-      this.modelSelect.value = conv.model;
-    if (this.modeSelect)
-      this.modeSelect.value = conv.mode;
-    if (this.topbarTitleEl)
-      this.topbarTitleEl.textContent = conv.title;
+    if (this.modelSelect) this.modelSelect.value = conv.model;
+    if (this.modeSelect) this.modeSelect.value = conv.mode;
+    if (this.topbarTitleEl) this.topbarTitleEl.textContent = conv.title;
     this.messagesEl.empty();
     this.renderAllMessages();
     this.renderConvList();
@@ -894,11 +857,9 @@ var ClaudeView = class extends import_obsidian2.ItemView {
   }
   // ─── Sending ──────────────────────────────────────────────────────────────────
   async send() {
-    if (!this.currentConv || this.isStreaming)
-      return;
+    if (!this.currentConv || this.isStreaming) return;
     const text = this.inputEl.value.trim();
-    if (!text)
-      return;
+    if (!text) return;
     this.inputEl.value = "";
     this.autoResize();
     const mode = this.modeSelect.value;
@@ -911,8 +872,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
   // ─── Chat ────────────────────────────────────────────────────────────────────
   async runChat(text) {
     var _a;
-    if (!this.currentConv)
-      return;
+    if (!this.currentConv) return;
     (_a = this.messagesEl.querySelector(".cdm-welcome")) == null ? void 0 : _a.remove();
     this.isStreaming = true;
     this.sendBtn.disabled = true;
@@ -921,8 +881,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
     if (this.currentConv.messages.length === 1) {
       const title = text.slice(0, 52) + (text.length > 52 ? "\u2026" : "");
       this.currentConv.title = title;
-      if (this.topbarTitleEl)
-        this.topbarTitleEl.textContent = title;
+      if (this.topbarTitleEl) this.topbarTitleEl.textContent = title;
     }
     const tools = [
       ...this.plugin.settings.enableVaultTools ? getVaultTools() : [],
@@ -971,11 +930,9 @@ var ClaudeView = class extends import_obsidian2.ItemView {
     }
   }
   async handleToolUses(precedingText, toolUses, bubble, tools, system) {
-    if (!this.currentConv)
-      return;
+    if (!this.currentConv) return;
     const assistantContent = [];
-    if (precedingText)
-      assistantContent.push({ type: "text", text: precedingText });
+    if (precedingText) assistantContent.push({ type: "text", text: precedingText });
     for (const tu of toolUses) {
       assistantContent.push({ type: "tool_use", id: tu.id, name: tu.name, input: tu.input });
       this.renderToolUse(bubble, tu.name, tu.input);
@@ -1026,8 +983,7 @@ var ClaudeView = class extends import_obsidian2.ItemView {
     });
   }
   finalizeMessage(text) {
-    if (!this.currentConv)
-      return;
+    if (!this.currentConv) return;
     this.currentConv.messages.push({
       id: `msg_${Date.now()}_f`,
       role: "assistant",
@@ -1048,16 +1004,14 @@ var ClaudeView = class extends import_obsidian2.ItemView {
   // ─── Co-work ─────────────────────────────────────────────────────────────────
   async runCowork(task) {
     var _a;
-    if (!this.currentConv)
-      return;
+    if (!this.currentConv) return;
     (_a = this.messagesEl.querySelector(".cdm-welcome")) == null ? void 0 : _a.remove();
     this.isStreaming = true;
     this.sendBtn.disabled = true;
     this.addMessage("user", task);
     if (this.currentConv.messages.length === 1) {
       this.currentConv.title = "\u{1F91D} " + task.slice(0, 48);
-      if (this.topbarTitleEl)
-        this.topbarTitleEl.textContent = this.currentConv.title;
+      if (this.topbarTitleEl) this.topbarTitleEl.textContent = this.currentConv.title;
     }
     const panel = this.messagesEl.createDiv({ cls: "cdm-cowork-panel" });
     panel.createEl("h3", { text: "\u{1F91D} Co-work Session", cls: "cdm-cowork-heading" });
@@ -1138,13 +1092,11 @@ ${result.synthesis}`,
     return msg;
   }
   renderAllMessages() {
-    if (!this.currentConv)
-      return;
+    if (!this.currentConv) return;
     for (const msg of this.currentConv.messages) {
       if (msg.role === "user" && Array.isArray(msg.content)) {
         const hasOnlyToolResults = msg.content.every((b) => b.type === "tool_result");
-        if (hasOnlyToolResults)
-          continue;
+        if (hasOnlyToolResults) continue;
       }
       this.renderMessage(msg);
     }
@@ -1165,8 +1117,7 @@ ${result.synthesis}`,
         }
       }
     }
-    if (msg.role === "assistant")
-      this.addCopyBtn(wrap, msg);
+    if (msg.role === "assistant") this.addCopyBtn(wrap, msg);
     return wrap;
   }
   createMessageBubble(role) {
@@ -1211,8 +1162,7 @@ ${result.synthesis}`,
   }
   // ─── Helpers ──────────────────────────────────────────────────────────────────
   buildApiMessages() {
-    if (!this.currentConv)
-      return [];
+    if (!this.currentConv) return [];
     const result = [];
     for (const msg of this.currentConv.messages) {
       if (typeof msg.content === "string") {
@@ -1226,8 +1176,7 @@ ${result.synthesis}`,
   buildSystem() {
     var _a;
     const parts = [];
-    if (this.plugin.settings.systemPrompt)
-      parts.push(this.plugin.settings.systemPrompt);
+    if (this.plugin.settings.systemPrompt) parts.push(this.plugin.settings.systemPrompt);
     if (this.plugin.settings.enableVaultTools) {
       parts.push(
         "You have access to the user's Obsidian vault through tools. Use them proactively when the user asks about their notes, wants to create or edit content, or when vault context would help you answer better."
@@ -1242,8 +1191,7 @@ ${result.synthesis}`,
     return parts.join("\n\n");
   }
   setStatus(text) {
-    if (this.statusEl)
-      this.statusEl.textContent = text;
+    if (this.statusEl) this.statusEl.textContent = text;
   }
   done() {
     this.isStreaming = false;
@@ -1283,19 +1231,16 @@ var SystemPromptSync = class {
     this.watchPath = null;
   }
   read(filePath) {
-    if (!(0, import_fs2.existsSync)(filePath))
-      return "";
+    if (!(0, import_fs2.existsSync)(filePath)) return "";
     return (0, import_fs2.readFileSync)(filePath, "utf8").trim();
   }
   write(filePath, content) {
     const dir = (0, import_path2.dirname)(filePath);
-    if (!(0, import_fs2.existsSync)(dir))
-      (0, import_fs2.mkdirSync)(dir, { recursive: true });
+    if (!(0, import_fs2.existsSync)(dir)) (0, import_fs2.mkdirSync)(dir, { recursive: true });
     (0, import_fs2.writeFileSync)(filePath, content, "utf8");
   }
   ensureTemplate(filePath) {
-    if ((0, import_fs2.existsSync)(filePath))
-      return false;
+    if ((0, import_fs2.existsSync)(filePath)) return false;
     this.write(filePath, TEMPLATE);
     return true;
   }
@@ -1321,7 +1266,7 @@ var DEFAULT_SETTINGS = {
   defaultModel: "claude-sonnet-4-6",
   conversationsFolder: "Claude Conversations",
   systemPrompt: "",
-  enableVaultTools: true,
+  enableVaultTools: false,
   enableCodeMode: false,
   enableCowork: true,
   maxTokens: 8096,
@@ -1340,7 +1285,6 @@ var ClaudeSettingsTab = class extends import_obsidian3.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Claude Desktop Mirror" });
     new import_obsidian3.Setting(containerEl).setName("API Key").setDesc("Your Anthropic API key (stored in Obsidian data only)").addText(
       (text) => text.setPlaceholder("sk-ant-...").setValue(this.plugin.settings.apiKey).onChange(async (value) => {
         this.plugin.settings.apiKey = value.trim();
@@ -1374,8 +1318,10 @@ var ClaudeSettingsTab = class extends import_obsidian3.PluginSettingTab {
       return text;
     });
     containerEl.createEl("h3", { text: "System Prompt Sync" });
-    const syncDesc = containerEl.createEl("p", { cls: "setting-item-description" });
-    syncDesc.innerHTML = "Sync your system prompt with a shared file at <code>" + this.plugin.settings.syncFilePath + "</code>. This file is read by Claude Code and can be updated from Claude Desktop's custom instructions manually. Use the buttons below to push/pull between Obsidian and the file.";
+    containerEl.createEl("p", {
+      cls: "setting-item-description",
+      text: `Sync your system prompt with a shared file at ${this.plugin.settings.syncFilePath}. This file can be shared with other Claude tools. Use the buttons below to push or pull between Obsidian and the file.`
+    });
     new import_obsidian3.Setting(containerEl).setName("Sync File Path").setDesc("Absolute path to the shared system prompt file").addText(
       (text) => text.setPlaceholder(DEFAULT_SYNC_PATH).setValue(this.plugin.settings.syncFilePath).onChange(async (value) => {
         this.plugin.settings.syncFilePath = value.trim() || DEFAULT_SYNC_PATH;
@@ -1399,8 +1345,7 @@ var ClaudeSettingsTab = class extends import_obsidian3.PluginSettingTab {
         }
         this.plugin.settings.systemPrompt = content;
         await this.plugin.saveSettings();
-        if (this.promptTextArea)
-          this.promptTextArea.value = content;
+        if (this.promptTextArea) this.promptTextArea.value = content;
         new import_obsidian3.Notice("System prompt loaded from file \u2713");
       })
     ).addButton(
@@ -1546,8 +1491,7 @@ var ConversationStore = class {
   async delete(id) {
     const path = this.filePath(id);
     const file = this.app.vault.getAbstractFileByPath(path);
-    if (file instanceof import_obsidian4.TFile)
-      await this.app.vault.trash(file, true);
+    if (file instanceof import_obsidian4.TFile) await this.app.vault.trash(file, true);
     this.cache.delete(id);
   }
   get(id) {
@@ -1658,8 +1602,7 @@ var ChatExporter = class {
     return lines;
   }
   contentToText(content) {
-    if (typeof content === "string")
-      return content;
+    if (typeof content === "string") return content;
     const parts = [];
     for (const block of content) {
       if (block.type === "text" && block.text) {
